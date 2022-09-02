@@ -6,19 +6,17 @@ from bs4 import BeautifulSoup as bs
 
 # 头文件，防止被BAN
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49',
-    'cookie': '__utmz=63332592.1657018303.1.1.utmcsr=cn.bing.com|utmccn=(referral)|utmcmd=referral|utmcct=/; sdc_session=1657786664335; Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1657018281,1657786664; __utmc=63332592; motion_id=1657789251026_0.8240650468520039; __utma=63332592.1628587186.1657018303.1657786686.1657789264.4; __utmt=1; tgw_l7_route=cfc54d8963ffc9a6226b3055b0851e96; WT_FPC=id=undefined:lv=1657789323900:ss=1657789241859; sdc_userflag=1657789241861::1657789323902::4; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1657789324; __utmb=63332592.4.10.1657789264; CLICKSTRN_ID=117.139.220.75-1657018280.838495::4E4782FB186EBA42D661A2DE84708C35=',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 Edg/104.0.1293.70',
+    # 'cookie': '__utmz=63332592.1657018303.1.1.utmcsr=cn.bing.com|utmccn=(referral)|utmcmd=referral|utmcct=/; sdc_session=1657786664335; Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1657018281,1657786664; __utmc=63332592; motion_id=1657789251026_0.8240650468520039; __utma=63332592.1628587186.1657018303.1657786686.1657789264.4; __utmt=1; tgw_l7_route=cfc54d8963ffc9a6226b3055b0851e96; WT_FPC=id=undefined:lv=1657789323900:ss=1657789241859; sdc_userflag=1657789241861::1657789323902::4; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1657789324; __utmb=63332592.4.10.1657789264; CLICKSTRN_ID=117.139.220.75-1657018280.838495::4E4782FB186EBA42D661A2DE84708C35=',
     # 'referer': 'https://odds.500.com/fenxi/ouzhi-1037634.shtml'
 }
 # 网址
 url = 'https://odds.500.com/fenxi/ouzhi-1037634.shtml'
-res = requests.get(url, headers=headers)
-# cookies = requests.utils.dict_from_cookiejar(res.cookies)
-# url = 'https://odds.500.com/fenxi1/ouzhi.php?id=1037634&ctype=1&start=120&r=1&style=0&guojia=0&chupan=1'
 
-print(res.cookies)
+
 # 利用requests库下载网页
 page = requests.get(url, headers=headers)
+# print(page.content)
 
 # 利用beautifulSoup库解析页面
 # soup = bs(page.content,'html.parser',from_encoding="gb18030")
@@ -32,6 +30,32 @@ for line in lines:
     # print("---------------------------------")
     if temp := line.find("span", attrs={"class": "quancheng"}):
         print("赔率公司全称：" + temp.string)
+
+
+def get_cookie(url):
+    res = requests.get(url, headers=headers)
+    cookies = res.cookies
+    cookie = requests.utils.dict_from_cookiejar(cookies)
+    return cookie
+def get_ajax_page(url):
+    # 网址
+    standerd_page_url = 'https://odds.500.com/fenxi/ouzhi-1037634.shtml'
+    cookie=get_cookie(standerd_page_url)
+    # headers['content-type'] = r'application/x-www-form-urlencoded'
+    headers['referer'] = 'https://odds.500.com/fenxi/ouzhi-1037634.shtml'
+    # headers['cookie'] = 'sdc_session=1661931244972; Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1661931245; __utma=63332592.874368.1661931246.1661931246.1661931246.1; __utmc=63332592; __utmz=63332592.1661931246.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmt=1; WT_FPC=id=undefined:lv=1661931271614:ss=1661931244969; sdc_userflag=1661931244972::1661931271629::2; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1661931272; __utmb=63332592.2.10.1661931246; CLICKSTRN_ID=117.177.111.25-1661931246.358615::9A4EEDAFB2CFDBF6F21EFCEF7F2F50C6'
+    res = requests.get(url, headers=headers)
+    soup = bs(res.content, 'html.parser', from_encoding="utf-8")
+    lines = soup.find_all('tr')
+    print('\n')
+    for line in lines:
+        # print(line)
+        # print("---------------------------------")
+        if temp := line.find("span", attrs={"class": "quancheng"}):
+            print("赔率公司全称：" + temp.string)
+
+url = 'https://odds.500.com/fenxi1/ouzhi.php?id=1037634&ctype=1&start=120&r=1&style=0&guojia=0&chupan=1'
+get_ajax_page(url)
 
 
 # 下载文件
@@ -89,4 +113,4 @@ def get_xls(id):
         f.write(file.content)
 
 
-get_xls(1046235)
+# get_xls(1046235)
